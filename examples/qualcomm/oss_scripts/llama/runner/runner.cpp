@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <fstream>
 
+using executorch::extension::Module;
 using executorch::extension::llm::get_rss_bytes;
 using executorch::extension::llm::print_report;
 using executorch::extension::llm::Stats;
@@ -37,6 +38,20 @@ namespace llm = ::executorch::extension::llm;
 
 namespace example {
 namespace {
+Result<std::pair<int32_t, int32_t>> get_attention_mask_shape(
+  const executorch::runtime::Result<executorch::runtime::TensorInfo>&
+    attention_mask_meta) {
+  const auto& sizes = attention_mask_meta->sizes();
+  ET_CHECK_MSG(
+    sizes.size() >= 2,
+    "Expected attention mask rank >= 2, got %zu",
+    sizes.size());
+
+  return std::make_pair(
+    static_cast<int32_t>(sizes[sizes.size() - 2]),
+    static_cast<int32_t>(sizes[sizes.size() - 1]));
+}
+
 void print_performance_report(
     const Stats& stats,
     const std::string& performance_output_path) {
@@ -243,10 +258,13 @@ Error Runner::load() {
   int32_t token_generator_ar_len = 0;
   int32_t max_cache_len = 0;
   int32_t max_ar_len = 0;
-  // atten mask: [1, 1, AR-N, CL]
+  // Attention masks are exported as either [B, 1, AR, CL] or [B, CL].
+  // Read the last two dimensions so both layouts map to {ar_len, context_len}.
   auto atten_mask_meta_token = method_meta->input_tensor_meta(1);
-  token_generator_ar_len = atten_mask_meta_token->sizes()[2];
-  context_len_ = atten_mask_meta_token->sizes()[3];
+    ET_ASSIGN_OR_RETURN(
+      token_attention_shape, get_attention_mask_shape(atten_mask_meta_token));
+  token_generator_ar_len = token_attention_shape.first;
+  context_len_ = token_attention_shape.second;
   if (eval_mode_ == EvalMode::kKVCached) {
     prompt_processor_ar_len = token_generator_ar_len;
   } else if (
@@ -255,7 +273,10 @@ Error Runner::load() {
     auto atten_mask_meta_prompt =
         module_->method_meta(prompt_processor_method_name)
             ->input_tensor_meta(1);
-    prompt_processor_ar_len = atten_mask_meta_prompt->sizes()[2];
+    ET_ASSIGN_OR_RETURN(
+      prompt_attention_shape,
+      get_attention_mask_shape(atten_mask_meta_prompt));
+    prompt_processor_ar_len = prompt_attention_shape.first;
   }
   if (prompt_processor_ar_len == context_len_)
     max_cache_len = context_len_;
