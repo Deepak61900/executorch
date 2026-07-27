@@ -54,6 +54,10 @@ class AttentionSinkRopeRunner {
     return eviction_batch_size_;
   }
 
+  void reset() {
+    position_shift_ = 0;
+  }
+
  protected:
   executorch::extension::Module* module_;
   int position_shift_ = 0;

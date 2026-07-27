@@ -89,7 +89,7 @@ class Runner : public executorch::extension::llm::IRunner {
       std::function<void(const std::string&)> token_callback = {},
       std::function<void(const executorch::llm::Stats&)> stats_callback = {});
   void stop() override {};
-  void reset() override {};
+  void reset() override;
   executorch::runtime::Result<DecoderModelVersion> get_decoder_model_version();
 
  private:

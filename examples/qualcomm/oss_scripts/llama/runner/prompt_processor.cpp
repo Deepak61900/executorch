@@ -209,6 +209,10 @@ const std::vector<std::byte>& PromptProcessor::get_all_logits() {
   return prompt_all_logits_;
 }
 
+void PromptProcessor::clear_all_logits() {
+  prompt_all_logits_.clear();
+}
+
 void PromptProcessor::prepare_io(
     const std::vector<uint64_t>& prompt_tokens,
     int64_t prompt_pos,

@@ -84,6 +84,42 @@ set_target_properties(
   qnn_llama_runner PROPERTIES LINK_FLAGS "-Wl,-rpath='$ORIGIN'"
 )
 
+set(_llama_persistent_runner__srcs ${_llama_runner__srcs})
+list(FILTER _llama_persistent_runner__srcs EXCLUDE REGEX ".*qnn_llama_runner\\.cpp")
+list(PREPEND _llama_persistent_runner__srcs ${CMAKE_CURRENT_LIST_DIR}/qnn_llama_persistent_runner.cpp)
+
+add_executable(qnn_llama_persistent_runner ${_llama_persistent_runner__srcs})
+target_include_directories(
+  qnn_llama_persistent_runner PUBLIC ${_common_include_directories}
+)
+target_include_directories(
+  qnn_llama_persistent_runner
+  PUBLIC ${EXECUTORCH_ROOT}/extension/llm/tokenizers/include
+)
+target_compile_options(
+  qnn_llama_persistent_runner PUBLIC ${_common_compile_options}
+)
+
+target_link_libraries(
+  qnn_llama_persistent_runner
+  qnn_executorch_backend
+  executorch_core
+  extension_data_loader
+  extension_flat_tensor
+  extension_llm_runner
+  extension_module
+  extension_tensor
+  gflags
+  custom_ops
+  quantized_ops_lib
+  quantized_kernels
+  tokenizers::tokenizers
+)
+
+set_target_properties(
+  qnn_llama_persistent_runner PROPERTIES LINK_FLAGS "-Wl,-rpath='$ORIGIN'"
+)
+
 # build qnn multimodal runner preprocess qnn runner src files for multimodal
 set(_multimodal_runner__srcs ${_llama_runner__srcs})
 list(FILTER _multimodal_runner__srcs EXCLUDE REGEX ".*qnn_llama_runner.*")

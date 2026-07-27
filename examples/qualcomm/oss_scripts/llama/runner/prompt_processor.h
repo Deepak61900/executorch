@@ -60,6 +60,8 @@ class PromptProcessor {
    */
   virtual const std::vector<std::byte>& get_all_logits();
 
+  virtual void clear_all_logits();
+
   /**
    * Prefill an LLM Module with the given text input.
    * @param prompt_tokens The text prompt tokens to the LLM Module. Encoded by

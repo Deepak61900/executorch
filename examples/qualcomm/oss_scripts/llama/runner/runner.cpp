@@ -397,6 +397,21 @@ Error Runner::generate(
       prompt, false, config, token_callback, stats_callback);
 }
 
+void Runner::reset() {
+  cur_pos_ = 0;
+  stats_.reset();
+
+  if (attention_sink_rope_runner_ != nullptr) {
+    attention_sink_rope_runner_->reset();
+  }
+  if (prompt_processor_ != nullptr) {
+    prompt_processor_->clear_all_logits();
+  }
+  if (token_generator_ != nullptr) {
+    token_generator_->clear_all_logits();
+  }
+}
+
 Error Runner::generate_from_prompt_or_file(
     const std::string& prompt,
     bool tokenized_prompt,

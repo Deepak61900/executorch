@@ -63,6 +63,8 @@ class TokenGenerator {
    */
   virtual const std::vector<std::byte>& get_all_logits();
 
+  virtual void clear_all_logits();
+
   /**
      * @brief Generate tokens.
      * @param tokens Vector of input tokens.

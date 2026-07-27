@@ -209,6 +209,10 @@ const std::vector<std::byte>& TokenGenerator::get_all_logits() {
   return token_all_logits_;
 }
 
+void TokenGenerator::clear_all_logits() {
+    token_all_logits_.clear();
+}
+
 // This function only considers the case where token_generator_ar_len equals 1.
 void TokenGenerator::prepare_io(uint64_t cur_token, int64_t start_pos) {
   // update input_tok
