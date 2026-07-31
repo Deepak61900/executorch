@@ -101,6 +101,8 @@ class QNNMultimodalRunner
       std::function<void(const executorch::llm::Stats&)> stats_callback = {})
       override;
 
+  void reset();
+
   executorch::runtime::Result<ModelVersion> get_model_version();
   executorch::runtime::Result<executorch::runtime::MethodMeta>
   get_encoder_method_meta();

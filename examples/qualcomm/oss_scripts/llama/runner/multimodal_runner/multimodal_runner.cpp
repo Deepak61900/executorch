@@ -152,6 +152,21 @@ bool QNNMultimodalRunner::is_loaded() const {
       buffer_manager_;
 }
 
+void QNNMultimodalRunner::reset() {
+  cur_pos_ = 0;
+  stats_.reset();
+
+  if (embedding_merger_ != nullptr) {
+    embedding_merger_->reset();
+  }
+  if (prompt_processor_ != nullptr) {
+    prompt_processor_->clear_all_logits();
+  }
+  if (token_generator_ != nullptr) {
+    token_generator_->clear_all_logits();
+  }
+}
+
 Error QNNMultimodalRunner::load() {
   if (is_loaded()) {
     return Error::Ok;

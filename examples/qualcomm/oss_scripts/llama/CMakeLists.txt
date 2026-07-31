@@ -179,3 +179,50 @@ target_link_libraries(
 set_target_properties(
   qnn_multimodal_runner PROPERTIES LINK_FLAGS "-Wl,-rpath='$ORIGIN'"
 )
+
+set(_multimodal_persistent_runner__srcs ${_multimodal_runner__srcs})
+list(
+  FILTER
+  _multimodal_persistent_runner__srcs
+  EXCLUDE
+  REGEX ".*qnn_multimodal_runner\\.cpp"
+)
+list(
+  PREPEND
+  _multimodal_persistent_runner__srcs
+  ${CMAKE_CURRENT_LIST_DIR}/qnn_multimodal_persistent_runner.cpp
+)
+
+add_executable(
+  qnn_multimodal_persistent_runner ${_multimodal_persistent_runner__srcs}
+)
+target_include_directories(
+  qnn_multimodal_persistent_runner PUBLIC ${_common_include_directories}
+)
+target_include_directories(
+  qnn_multimodal_persistent_runner
+  PUBLIC ${EXECUTORCH_ROOT}/extension/llm/tokenizers/include
+)
+target_compile_options(
+  qnn_multimodal_persistent_runner PUBLIC ${_common_compile_options}
+)
+
+target_link_libraries(
+  qnn_multimodal_persistent_runner
+  qnn_executorch_backend
+  executorch_core
+  extension_data_loader
+  extension_flat_tensor
+  extension_llm_runner
+  extension_module
+  extension_tensor
+  gflags
+  custom_ops
+  quantized_ops_lib
+  quantized_kernels
+  tokenizers::tokenizers
+)
+
+set_target_properties(
+  qnn_multimodal_persistent_runner PROPERTIES LINK_FLAGS "-Wl,-rpath='$ORIGIN'"
+)
